@@ -51,3 +51,31 @@ CREATE TABLE clients (
 INSERT INTO clients(`first_name`,`last_name`,`room_id`) 
 VALUES('Pesho','Petrov', 1),('Gosho','Georgiev', 2),
 ('Mariya','Marieva', 2), ('Katya','Katerinova', 1), ('Nikolay','Nikolaev', 2);
+
+
+-- 1
+
+SELECT 
+    id, first_name, last_name, job_title
+FROM
+    employees
+ORDER BY id;
+
+-- 2
+
+SELECT 
+    id, concat_ws(" ",first_name,last_name), job_title, salary
+FROM
+    employees
+WHERE
+    salary > 1000.00
+ORDER BY id; 
+
+-- 3
+Update employees 
+set salary = salary + 100 
+where job_title = 'Manager'; 
+SELECT salary
+FROM employees;
+
+
