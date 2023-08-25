@@ -155,6 +155,23 @@ select count(employee_id) as ''
 from employees 
 where manager_id is null;
 
+-- 16 
+
+SELECT 
+    department_id,
+    (SELECT 
+            salary
+        FROM
+            employees AS e2
+        WHERE
+            e1.department_id = e2.department_id
+        ORDER BY salary DESC
+        LIMIT 1 OFFSET 2) AS third_highest_salary
+FROM
+    employees AS e1
+GROUP BY department_id
+ORDER BY department_id;
+
 -- 18
 SELECT 
     department_id, SUM(salary) AS total_salary
