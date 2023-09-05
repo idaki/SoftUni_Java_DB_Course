@@ -20,15 +20,20 @@ public class Lab {
 //                .getConnection("jdbc:mysql://localhost:3306/diablo", "root", "root");
 
         PreparedStatement statement = connection.prepareStatement(QUERY);
-        System.out.println("Get user");
 
-        String user = scanner.nextLine();
+        String user = getUsernameFromConsole(scanner);
+
         statement.setString(1,user);
 
         ResultSet result = statement.executeQuery();
 
         printResult(result);
 
+    }
+
+    private static String getUsernameFromConsole(Scanner scanner) {
+        System.out.println("Get user");
+        return scanner.nextLine();
     }
 
     private static void printResult(ResultSet result) throws SQLException {
