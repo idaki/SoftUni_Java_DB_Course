@@ -1,5 +1,7 @@
+import java.sql.SQLException;
+
 public interface DbContext<E> {
-    boolean persit(E entity) throws IllegalAccessException;
+    boolean persit(E entity) throws IllegalAccessException, SQLException;
     Iterable<E> find(Class<E> table);
     Iterable<E> find(Class<E> table, String  where );
 
