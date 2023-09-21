@@ -27,8 +27,8 @@ public class EntityManager implements DbContext {
             return insertId(entity);
         }
 
-        return ++++++++updateEntity(entity);
-        ;
+        return false; //++++++updateEntity(entity);
+
     }
 
 
