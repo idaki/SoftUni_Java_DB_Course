@@ -1,0 +1,193 @@
+drop database exam;
+create database exam;
+use exam;
+
+CREATE TABLE continents
+(
+    id   INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(40) NOT NULL UNIQUE
+);
+
+CREATE TABLE countries
+(
+    id           INT PRIMARY KEY AUTO_INCREMENT,
+    name         VARCHAR(40) NOT NULL UNIQUE,
+    country_code VARCHAR(10) NOT NULL UNIQUE,
+    continent_id INT         NOT NULL,
+    FOREIGN KEY (continent_id) REFERENCES continents (id)
+);
+
+CREATE TABLE positions
+(
+    id           INT PRIMARY KEY AUTO_INCREMENT,
+    name         VARCHAR(40) NOT NULL UNIQUE,
+    description  TEXT,
+    is_dangerous BOOLEAN     NOT NULL
+);
+
+CREATE TABLE preserves
+(
+    id             INT PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(255) NOT NULL UNIQUE,
+    latitude       DECIMAL(9, 6),
+    longitude      DECIMAL(9, 6),
+    area           INT,
+    type           VARCHAR(20),
+    established_on DATE
+);
+
+CREATE TABLE workers
+(
+    id              INT PRIMARY KEY AUTO_INCREMENT,
+    first_name      VARCHAR(40) NOT NULL,
+    last_name       VARCHAR(40) NOT NULL,
+    age             INT,
+    personal_number VARCHAR(20) UNIQUE,
+    salary          DECIMAL(19, 2),
+    is_armed        BOOLEAN     NOT NULL,
+    start_date      DATE,
+    preserve_id     INT,
+    FOREIGN KEY (preserve_id) REFERENCES preserves (id),
+    position_id     INT,
+    FOREIGN KEY (position_id) REFERENCES positions (id)
+
+
+);
+
+create table countries_preserves
+(
+    country_id  INT,
+    FOREIGN KEY (country_id) REFERENCES countries (id),
+    preserve_id INT,
+    FOREIGN KEY (preserve_id) REFERENCES preserves (id)
+);
+
+
+-- 2
+INSERT INTO preserves
+    (name, latitude, longitude, area, type, established_on)
+
+SELECT CONCAT(name, ' is in South Hemisphere'),
+       latitude,
+       longitude,
+       area * id,
+       LOWER(type),
+       established_on
+FROM preserves
+WHERE latitude < 0;
+
+-- 3
+
+UPDATE workers
+SET salary=salary + 500
+where position_id = 5
+   OR position_id = 8
+   OR position_id = 11
+   OR position_id = 13;
+
+-- 4
+
+DELETE
+FROM preserves
+WHERE preserves.established_on IS NULL;
+
+-- 5
+
+SELECT CONCAT(first_name, ' ', last_name) AS full_name,
+       DATEDIFF('2024-01-01', start_date) AS days_of_experience
+FROM workers
+WHERE DATEDIFF('2024-01-01', start_date) > 5 * 365
+ORDER BY days_of_experience DESC
+LIMIT 10;
+
+-- 6
+
+SELECT w.id   AS worker_id,
+       w.first_name,
+       w.last_name,
+       p.name AS preserve_name,
+       c.country_code
+
+FROM workers w
+         JOIN preserves p ON w.preserve_id = p.id
+         JOIN countries_preserves cp ON p.id = cp.preserve_id
+         JOIN countries c ON cp.country_id = c.id
+WHERE w.age < 50
+  AND w.salary > 5000
+ORDER BY c.country_code ASC;
+
+-- 7
+
+SELECT p.name                                        AS name,
+       COUNT(CASE WHEN w.is_armed = TRUE THEN 1 END) AS armed_workers
+FROM preserves p
+         LEFT JOIN workers w ON p.id = w.preserve_id
+GROUP BY p.name
+HAVING COUNT(CASE WHEN w.is_armed = TRUE THEN 1 END)
+ORDER BY armed_workers DESC, p.name ASC;
+;
+
+
+-- 8
+SELECT pr.name                 AS preserve,
+       co.country_code,
+       YEAR(pr.established_on) AS founded_in
+FROM preserves pr
+         JOIN countries_preserves cp ON pr.id = cp.preserve_id
+         JOIN countries co ON cp.country_id = co.id
+WHERE MONTH(pr.established_on) = 5
+ORDER BY pr.established_on ASC
+LIMIT 5;
+
+-- 9
+
+SELECT id,
+       name,
+       CASE
+           WHEN area <= 100 THEN 'very small'
+           WHEN area <= 1000 THEN 'small'
+           WHEN area <= 10000 THEN 'medium'
+           WHEN area <= 50000 THEN 'large'
+           ELSE 'very large'
+           END AS category
+FROM preserves
+ORDER BY area DESC;
+
+--  10
+DELIMITER $$
+CREATE FUNCTION udf_average_salary_by_position_name(position_name VARCHAR(40))
+    RETURNS DECIMAL(19, 2)
+    DETERMINISTIC
+BEGIN
+    DECLARE avg_salary DECIMAL(19, 2);
+
+    SELECT AVG(salary) AS avg_salary
+    FROM workers w
+             JOIN positions p ON w.position_id = p.id
+    WHERE p.name = position_name;
+
+
+    RETURN avg_salary;
+END;
+
+
+-- 11
+
+DELIMITER $$
+CREATE PROCEDURE udp_increase_salaries_by_country(IN country_name VARCHAR(40))
+BEGIN
+    DECLARE country_id INT;
+
+    SELECT id
+    INTO country_id
+    FROM countries
+    WHERE name = country_name;
+
+    UPDATE workers w
+        JOIN preserves p ON w.preserve_id = p.id
+        JOIN countries_preserves cp ON p.id = cp.preserve_id
+    SET w.salary = 1.05 * w.salary
+    WHERE cp.country_id = country_id;
+END;
+$$
+
