@@ -1,4 +1,6 @@
+import entities.Address;
 import entities.Employee;
+import entities.Project;
 import entities.Town;
 
 import javax.persistence.EntityManager;
@@ -9,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Main {
     private static BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
@@ -25,11 +29,34 @@ public class Main {
 //        ex_3(entityManager);
 //       ex_4(entityManager);
 //     ex_5(entityManager);
-        ex_6(entityManager);
+//      ex_6(entityManager);
+    // ex_7(entityManager);
+
+        ex_8(entityManager);
     }
 
-    private static void ex_6(EntityManager entityManager) {
+
+
+
+    private static void ex_7(EntityManager entityManager) {
+       entityManager.getTransaction().begin();
+
+        List<Address> addresses = entityManager
+                .createQuery("FROM Address ORDER BY size(employees) DESC,town.id ", Address.class)
+                .setMaxResults(10)
+                .getResultList();
+
+        addresses.forEach(e -> System.out.printf("%s, %s - %s employees%n",
+                e.getText(),
+                e.getTown().getName(),
+                e.getEmployees().size()));
+
+       entityManager.getTransaction().commit();
+
     }
+
+
+
 
 
     private static void ex_2(EntityManager entityManager) throws IOException {
@@ -75,4 +102,46 @@ public class Main {
                 , e.getDepartment().getName()
                 , e.getSalary()));
     }
+
+    private static void ex_6(EntityManager entityManager) throws IOException {
+        String input = READER.readLine();
+        Town town = entityManager.createQuery("FROM Town WHERE id=32", Town.class)
+                .getSingleResult();
+
+        Address address = new Address();
+        address.setText("Vitoshka 15");
+        address.setTown(town);
+        Employee employee = entityManager.createQuery("FROM Employee e WHERE e.lastName =?1", Employee.class)
+                .setParameter(1, input)
+                .getSingleResult();
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(address);
+        employee.setAddress(address);
+        entityManager.getTransaction().commit();
+    }
+    private static void ex_8(EntityManager entityManager) throws IOException {
+        entityManager.getTransaction().begin();
+        int employeeId = Integer.parseInt(READER.readLine());
+
+        Employee employee = entityManager
+                .createQuery("FROM Employee WHERE id = :employeeId", Employee.class)
+                .setParameter("employeeId", employeeId)
+                .getSingleResult();
+        System.out.printf("%s %s - %s%n\t%s",
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getJobTitle(),
+                employee.getProjects().stream()
+                        .map(Project::getName)
+                        .sorted()
+                        .collect(Collectors.joining(System.lineSeparator() + "\t")));
+
+        entityManager.getTransaction().commit();
+    }
+
+
+
+
 }
