@@ -4,6 +4,7 @@ import BookingSystem.data.Base.BaseEntity;
 import BookingSystem.data.Enum.AgeRestriction;
 import BookingSystem.data.Enum.BookEditionType;
 import jakarta.persistence.*;
+import org.hibernate.LazyInitializationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,12 +43,12 @@ public class Book extends BaseEntity {
 
 
 
-
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "book_category",
-            joinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"))
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "books_categories",
+            joinColumns = {@JoinColumn(name = "book_id")},
+            inverseJoinColumns = {@JoinColumn(name = "category_id")}
+    )
     private Set<Category> categories;
 
     public Book() {
@@ -63,5 +64,69 @@ public class Book extends BaseEntity {
     this.categories = categories;
     this.copies = copies;
 
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BookEditionType getEditionType() {
+        return editionType;
+    }
+
+    public void setEditionType(BookEditionType editionType) {
+        this.editionType = editionType;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public double getCopies() {
+        return copies;
+    }
+
+    public void setCopies(double copies) {
+        this.copies = copies;
+    }
+
+    public LocalDate getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public AgeRestriction getAgeRestriction() {
+        return ageRestriction;
+    }
+
+    public void setAgeRestriction(AgeRestriction ageRestriction) {
+        this.ageRestriction = ageRestriction;
+    }
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 }

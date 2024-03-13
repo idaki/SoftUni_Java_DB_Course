@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,4 +64,25 @@ public class BookServiceImpl implements BookService {
                     bookRepository.saveAndFlush(book);
                 });
     }
+
+    @Override
+    public List<String> getTitlesOfAllBooksReleasedAfter(final LocalDate date) {
+        return this.bookRepository
+                .getBooksByReleaseDateAfter(date)
+                .stream()
+                .map(Book::getTitle)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getBooksTitleReleaseDateAndCopiesByAuthorNames(final String firstName, final String lastName) {
+        return this.bookRepository
+                .getAllByAuthorFirstNameAndAuthorLastNameOrderByReleaseDateDescTitleAsc(firstName, lastName)
+                .stream()
+                .map(book -> String.format("%s - %s - %d",
+                        book.getTitle(), book.getReleaseDate().toString(), book.getCopies()))
+                .collect(Collectors.toList());
+    }
+
+
 }

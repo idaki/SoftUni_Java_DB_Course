@@ -34,8 +34,5 @@ public class Category extends BaseEntity {
         return Objects.equals(name, category.name) && Objects.equals(books, category.books);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, books);
-    }
+
 }
