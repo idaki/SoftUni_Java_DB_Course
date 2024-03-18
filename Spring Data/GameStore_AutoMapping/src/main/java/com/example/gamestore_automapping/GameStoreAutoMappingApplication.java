@@ -1,13 +1,13 @@
-package com.example.advquerying;
+package com.example.gamestore_automapping;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AdvqueryingApplication {
+public class GameStoreAutoMappingApplication {
 
     public static void main(String[] args) {
-        SpringApplication.  run(AdvqueryingApplication.class, args);
+        SpringApplication.run(GameStoreAutoMappingApplication.class, args);
     }
 
 }
