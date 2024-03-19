@@ -1,4 +1,13 @@
 package bg.softuni.jsonexrcise.Services;
 
-public interface UserService  {
+import bg.softuni.jsonexrcise.data.entitites.User;
+
+import java.io.IOException;
+
+public interface UserService {
+    void seedUsers() throws IOException;
+
+    User getUserById(int id);
+    int getUserCount();
+
 }

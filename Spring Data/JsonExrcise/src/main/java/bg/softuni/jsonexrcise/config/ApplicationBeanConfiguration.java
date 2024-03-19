@@ -2,6 +2,7 @@ package bg.softuni.jsonexrcise.config;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
@@ -17,12 +18,18 @@ public class ApplicationBeanConfiguration {
     }
 
     @Bean
-    public Gson gson() {
-        return new Gson();
+    public Gson gson(){
+        return new Gson()
+                .newBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .setPrettyPrinting()
+                .create();
     }
 
     @Bean
-    public Validator validator() {
+
+    public Validator validator(){
         return Validation.buildDefaultValidatorFactory().getValidator();
     }
+
 }
